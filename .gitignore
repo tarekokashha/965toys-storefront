@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules/
+vendor/
+wp-config.php
+wp-content/uploads/
+*.zip
+*.log
+.DS_Store
+Thumbs.db
+
