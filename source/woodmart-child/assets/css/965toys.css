@@ -1,0 +1,903 @@
+/* ==========================================================================
+   965TOYS — STORE REDESIGN v2
+   Source of truth: "965Toys Store v2.dc.html"
+
+   Values here are ported from the prototype's own stylesheet and inline
+   styles, not re-derived. Custom classes are prefixed t965- as the brief
+   requires; no global element resets are introduced beyond what the prototype
+   itself sets on html/body/a/button.
+   ========================================================================== */
+
+/* ==========================================================================
+   TOKENS
+   ========================================================================== */
+:root {
+  --t965-cream:      #FFF9EF;
+  --t965-cream-2:    #FFF8EE;
+  --t965-ink:        #2D2A45;
+  --t965-ink-2:      #2D2748;
+  --t965-soft:       #6a6683;
+  --t965-coral:      #FF6B6B;
+  --t965-coral-2:    #FF666D;
+  --t965-coral-sh:   #D14D4D;
+  --t965-coral-hov:  #E04F54;
+  --t965-yellow:     #FFC93C;
+  --t965-yellow-2:   #FFC94A;
+  --t965-yellow-sh:  #E0AC1B;
+  --t965-teal:       #17BEBB;
+  --t965-violet:     #6C5CE7;
+  --t965-violet-2:   #8E7CF5;
+  --t965-line:       #F3E7CF;
+  --t965-line-2:     #F6EEDD;
+
+  --t965-font-d: "Baloo Bhaijaan 2", "Segoe UI", Tahoma, sans-serif;
+  --t965-font-b: "Rubik", "Baloo Bhaijaan 2", "Segoe UI", Tahoma, sans-serif;
+
+  --t965-r-card: 24px;
+  --t965-r-tile: 26px;
+  --t965-r-pill: 999px;
+
+  --t965-wrap: 1280px;
+
+  /* Direction multiplier so one transform serves LTR and RTL. */
+  --t965-dir: 1;
+}
+
+[dir="rtl"] { --t965-dir: -1; }
+
+/* ==========================================================================
+   GLOBAL — matches the prototype exactly
+   ========================================================================== */
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--t965-cream);
+  font-family: var(--t965-font-b);
+  color: var(--t965-ink);
+  overflow-x: hidden;   /* decorative absolutes must never create scroll */
+}
+
+a { color: var(--t965-coral); text-decoration: none; }
+a:hover { color: var(--t965-coral-hov); }
+button { font-family: inherit; }
+button:active { transform: scale(.96); }
+::selection { background: var(--t965-yellow); }
+
+/* Arabic is a connected script: letter-spacing severs the joins, and Arabic
+   has no letter case so uppercase only shouts the Latin half of mixed titles.
+   Woodmart/Elementor set both freely, hence the force. */
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3,
+[dir="rtl"] h4, [dir="rtl"] .t965-btn, [dir="rtl"] button {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* Mixed Arabic/Latin strings need isolation or bidi reorders the punctuation
+   around the Latin run — 27% of this catalogue's titles are mixed. */
+.t965-ptitle, .t965-price, .woocommerce-Price-amount, bdi {
+  unicode-bidi: isolate;
+}
+.t965-price, .woocommerce-Price-amount {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "lnum" 1;
+}
+
+/* ==========================================================================
+   KEYFRAMES — ported verbatim
+   ========================================================================== */
+@keyframes t965-float   { 0%,100% { transform: translateY(0); }        50% { transform: translateY(-16px); } }
+@keyframes t965-bob     { 0%,100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-12px) rotate(5deg); } }
+@keyframes t965-spin    { to { transform: rotate(360deg); } }
+@keyframes t965-marquee { from { transform: translateX(0); } to { transform: translateX(50%); } }
+@keyframes t965-rise    { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-118vh) rotate(3deg); } }
+@keyframes t965-pop     { 0% { transform: scale(.85); opacity: 0; } 70% { transform: scale(1.04); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes t965-wbIn    { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes t965-twinkle { 0%,100% { opacity: .15; transform: scale(.7); } 50% { opacity: .9; transform: scale(1.15); } }
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+.t965-wrap { max-width: var(--t965-wrap); margin-inline: auto; padding-inline: 20px; }
+.t965-sec  { padding-bottom: 52px; }
+
+.t965-g-cat   { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+.t965-g-prod  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.t965-g-age   { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.t965-g-brand { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
+.t965-g-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+/* Horizontal rails: native scroll-snap, correct in RTL with no JS. */
+.t965-hrow {
+  display: flex; gap: 14px; overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding: 4px 2px 10px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+}
+.t965-hrow::-webkit-scrollbar { display: none; }
+.t965-hcard { flex: none; width: 206px; scroll-snap-align: start; }
+.t965-hcat  { flex: none; width: 136px; scroll-snap-align: start; }
+
+.t965-only-mob { display: none !important; }
+
+/* ==========================================================================
+   MARQUEE
+   direction:ltr on the track so translateX is predictable; rtl on each group
+   so the Arabic inside still reads correctly.
+   ========================================================================== */
+.t965-marquee {
+  background: var(--t965-ink); color: var(--t965-cream);
+  overflow: hidden; padding: 9px 0; font-size: 14px; font-weight: 500;
+}
+.t965-marquee__track {
+  display: flex; gap: 48px; width: max-content; direction: ltr;
+  animation: t965-marquee 22s linear infinite;
+}
+.t965-marquee__group { display: flex; gap: 48px; direction: rtl; }
+.t965-marquee:hover .t965-marquee__track { animation-play-state: paused; }
+
+/* ==========================================================================
+   BUTTONS — hard offset shadow, no blur. The signature treatment.
+   ========================================================================== */
+.t965-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; border-radius: var(--t965-r-pill);
+  font-family: var(--t965-font-b); font-weight: 700; cursor: pointer;
+  min-block-size: 44px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.t965-btn--coral   { background: var(--t965-coral); color: #fff; padding: 15px 34px; font-size: 17px; box-shadow: 0 5px 0 var(--t965-coral-sh); }
+.t965-btn--yellow  { background: var(--t965-yellow); color: var(--t965-ink); padding: 15px 34px; font-size: 17px; font-weight: 800; box-shadow: 0 5px 0 var(--t965-yellow-sh); }
+.t965-btn--outline { background: #fff; color: var(--t965-ink); border: 2px solid var(--t965-ink); padding: 13px 30px; font-size: 17px; }
+.t965-btn--ink     { background: var(--t965-ink); color: #fff; padding: 9px 18px; font-size: 14px; min-block-size: 40px; }
+.t965-btn--coral:hover, .t965-btn--yellow:hover { color: inherit; }
+.t965-btn--coral:hover { color: #fff; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .t965-btn:hover { transform: translateY(-3px); }
+}
+
+/* ==========================================================================
+   WONDER BOX HERO
+   ========================================================================== */
+.t965-wb-pin { position: relative; }
+
+.t965-wb-stick {
+  display: flex; align-items: center;
+  min-height: min(88svh, 760px);
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFF8EE, #FBF0DC);
+  padding: 26px 0 40px;
+}
+
+.t965-wb-sc {
+  position: relative;
+  width: min(540px, 90vw);
+  aspect-ratio: 1.04;
+  pointer-events: none;
+}
+
+.t965-wb-sc [data-t965-toy] { position: absolute; opacity: 0; }
+.t965-wb-sc [data-t965-toy] img { width: 100%; display: block; }
+
+.t965-hero-copy { animation: t965-wbIn .8s ease both; }
+
+.t965-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #fff; border: 2px solid var(--t965-line);
+  border-radius: var(--t965-r-pill); padding: 8px 16px;
+  font-weight: 600; font-size: 14px; color: var(--t965-violet);
+}
+
+.t965-h1 {
+  font-family: var(--t965-font-d); font-weight: 800;
+  font-size: clamp(30px, 4.6vw, 56px); line-height: 1.18;
+  margin: 16px 0 12px;
+}
+.t965-lede { font-size: clamp(15px, 1.5vw, 18px); line-height: 1.8; color: var(--t965-soft); margin: 0 0 24px; max-width: 520px; }
+
+.t965-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+.t965-chip {
+  background: #fff; border: 2px solid var(--t965-line);
+  border-radius: var(--t965-r-pill); padding: 8px 14px;
+  font-size: 13.5px; font-weight: 600; color: var(--t965-ink);
+}
+
+@media (max-width: 1024px) {
+  .t965-wb-stick { min-height: 0; background: radial-gradient(130% 55% at 50% 30%, #FFF1D8, #FFF8EE); }
+  .t965-wb-sc { width: min(320px, 78vw); margin: 6px auto 0; }
+}
+
+/* ==========================================================================
+   CATEGORY TILE
+   ========================================================================== */
+.t965-cat__box {
+  position: relative; aspect-ratio: 1; border-radius: var(--t965-r-tile);
+  background: #fff; border: 2px solid var(--t965-line-2);
+  box-shadow: 0 8px 24px rgba(45,42,69,.07);
+  display: grid; place-items: center; overflow: hidden;
+}
+.t965-cat__box img { width: 74%; height: 74%; object-fit: contain; }
+.t965-cat__name { text-align: center; font-weight: 700; font-size: 14px; margin-top: 8px; color: var(--t965-ink); }
+
+/* ==========================================================================
+   AGE CARDS
+   ========================================================================== */
+.t965-age {
+  border-radius: var(--t965-r-tile); padding: 20px 16px; display: block;
+  color: var(--t965-ink); position: relative; overflow: hidden;
+  min-height: 150px;
+}
+.t965-age img { width: 64px; height: 64px; object-fit: contain; }
+.t965-age h3 { font-family: var(--t965-font-d); font-weight: 800; font-size: 20px; margin: 8px 0 4px; }
+.t965-age p  { margin: 0; font-size: 13.5px; line-height: 1.55; }
+
+.t965-age--0-2 { background: linear-gradient(150deg,#FFE0E2,#FFCDD1); } .t965-age--0-2 p { color:#8a5a5e; }
+.t965-age--3-5 { background: linear-gradient(150deg,#FFF0C9,#FFE29B); } .t965-age--3-5 p { color:#8a7440; }
+.t965-age--6-8 { background: linear-gradient(150deg,#D3F5F4,#AEEBE9); } .t965-age--6-8 p { color:#3f7b79; }
+.t965-age--9   { background: linear-gradient(150deg,#E4DFFB,#CFC6F7); } .t965-age--9 p   { color:#5f55a3; }
+
+/* ==========================================================================
+   PRODUCT CARD
+   ========================================================================== */
+.t965-prod {
+  background: #fff; border-radius: var(--t965-r-card); padding: 14px;
+  box-shadow: 0 8px 24px rgba(45,42,69,.08);
+  display: flex; flex-direction: column; gap: 10px; position: relative;
+  transition: transform .25s ease, box-shadow .3s ease;
+}
+.t965-prod__media { position: relative; aspect-ratio: 1; border-radius: 18px; overflow: hidden; background: #FFF4E4; }
+.t965-prod__media img { width: 100%; height: 100%; object-fit: cover; }
+.t965-prod__rating {
+  position: absolute; top: 10px; inset-inline-end: 10px;
+  background: var(--t965-yellow); color: var(--t965-ink);
+  border-radius: var(--t965-r-pill); padding: 4px 12px;
+  font-size: 12.5px; font-weight: 700;
+}
+.t965-ptitle {
+  font-size: 15px; font-weight: 600; margin: 0; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.t965-ptitle a { color: var(--t965-ink); }
+.t965-ptitle a:hover { color: var(--t965-coral); }
+.t965-prod__foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; position: relative; z-index: 2; }
+.t965-price { font-family: var(--t965-font-d); font-weight: 800; font-size: 18px; color: var(--t965-coral); }
+.t965-prod__link::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+
+/* ==========================================================================
+   SHELF BANNER
+   ========================================================================== */
+.t965-shelf__banner {
+  display: block; border-radius: var(--t965-r-card); overflow: hidden;
+  margin-bottom: 16px; box-shadow: 0 8px 24px rgba(45,42,69,.08);
+}
+.t965-shelf__banner img {
+  width: 100%; height: auto; display: block;
+  /* Parallax: the frame clips, JS translates the oversized image. */
+  transform: scale(1.12); will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .t965-shelf__banner img { transform: none; }
+}
+
+/* ==========================================================================
+   BRANDS
+   ========================================================================== */
+.t965-brand {
+  background: #fff; border: 2px solid var(--t965-line-2);
+  border-radius: 20px; padding: 14px; display: grid; place-items: center; gap: 8px;
+  box-shadow: 0 8px 24px rgba(45,42,69,.06); color: var(--t965-ink);
+}
+/* Logos are never recoloured, cropped or mirrored — contain only. */
+.t965-brand img { width: 100%; height: 54px; object-fit: contain; }
+.t965-brand span { font-size: 13px; font-weight: 700; }
+
+/* ==========================================================================
+   TRUST
+   ========================================================================== */
+.t965-trust {
+  background: #fff; border-radius: var(--t965-r-card); padding: 18px;
+  display: flex; gap: 12px; align-items: center;
+  box-shadow: 0 8px 24px rgba(45,42,69,.07);
+}
+.t965-trust img { width: 44px; height: 44px; object-fit: contain; flex: none; }
+.t965-trust b { display: block; font-size: 15.5px; }
+.t965-trust span { font-size: 13px; color: var(--t965-soft); }
+
+/* ==========================================================================
+   SALE BANNER
+   ========================================================================== */
+.t965-sale {
+  position: relative; overflow: hidden; display: block;
+  background: linear-gradient(120deg, var(--t965-violet), var(--t965-violet-2));
+  border-radius: 30px; padding: clamp(24px,4vw,44px); text-align: center; color: #fff;
+}
+.t965-sale img { max-width: min(420px, 80%); margin-inline: auto; }
+
+/* ==========================================================================
+   GENDER HERO BANDS (الأولاد / البنات)
+   ========================================================================== */
+.t965-genderhero { border-radius: var(--t965-r-card); padding: clamp(22px,4vw,40px); margin-bottom: 22px; color: #fff; }
+.t965-genderhero h1 { font-family: var(--t965-font-d); font-weight: 800; font-size: clamp(26px,4vw,44px); margin: 0 0 6px; color: #fff; }
+.t965-genderhero p  { margin: 0; opacity: .92; }
+.t965-genderhero--boys  { background: linear-gradient(120deg,#1D6FE0,#17BEBB); }
+.t965-genderhero--girls { background: linear-gradient(120deg,#D6216B,#8E7CF5); }
+
+/* ==========================================================================
+   MOBILE BOTTOM NAV
+   ========================================================================== */
+.t965-mobnav {
+  position: fixed; inset-inline: 0; bottom: 0; z-index: 90;
+  display: none; grid-auto-flow: column;
+  background: #fff; border-top: 2px solid var(--t965-line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.t965-mobnav a {
+  display: grid; place-items: center; gap: 2px;
+  padding: 8px 4px; min-height: 56px;
+  font-size: 11.5px; font-weight: 700; color: var(--t965-ink);
+}
+.t965-mobnav a i { font-style: normal; font-size: 19px; line-height: 1; }
+.t965-mobnav a.is-active { color: var(--t965-coral); }
+
+/* ==========================================================================
+   EMPTY CART STATE
+   ========================================================================== */
+.t965-empty { display: grid; place-items: center; gap: 14px; padding: 48px 16px; text-align: center; }
+.t965-empty img { width: min(280px, 70%); }
+.t965-empty h2 { font-family: var(--t965-font-d); font-size: 26px; }
+
+/* ==========================================================================
+   BALLOON INTRO
+   ========================================================================== */
+.t965-balloons { position: fixed; inset: 0; z-index: 9999; pointer-events: none; overflow: hidden; }
+
+/* ==========================================================================
+   RESPONSIVE — ported from the prototype
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .t965-g-cat   { grid-template-columns: repeat(4, 1fr); }
+  .t965-g-prod  { grid-template-columns: repeat(3, 1fr); }
+  .t965-g-brand { grid-template-columns: repeat(4, 1fr); }
+  .t965-g-trust { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .t965-only-mob  { display: grid !important; }
+  .t965-only-desk { display: none !important; }
+  .t965-wrap { padding-inline: 14px; }
+  .t965-g-cat   { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .t965-g-age   { grid-template-columns: repeat(2, 1fr); gap: 11px; }
+  .t965-g-brand { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .t965-g-trust { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .t965-sec { padding-bottom: 44px !important; }
+  .t965-hrow  { gap: 10px; }
+  .t965-hcard { width: 158px; }
+  .t965-hcat  { width: 106px; }
+  .t965-mobnav { display: grid; }
+  body { padding-bottom: 74px; }   /* clear the fixed bottom nav */
+}
+
+/* Owner requirement, and the prototype's own rule: two products per row on
+   phones, never one. */
+@media (max-width: 640px) {
+  .t965-g-prod { grid-template-columns: repeat(2, 1fr) !important; gap: 11px !important; }
+  .t965-prod { padding: 10px; border-radius: 18px; }
+  .t965-ptitle { font-size: 13.5px; }
+  .t965-price { font-size: 16px; }
+  .t965-btn--ink { padding: 8px 12px; font-size: 13px; }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   The prototype kills every animation and transition; the Wonder Box is
+   rendered in its finished open state by the JS instead.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ==========================================================================
+   15. HERO GRID + MOBILE CORRECTIONS
+   The hero grid previously lived as an INLINE style on the wrapper, which no
+   media query could override. At 375px that left the copy column 121px wide
+   with the headline wrapping into a ribbon, and pushed the Wonder Box scene
+   to x=-111px, off-screen. That is the "فوق بعضها" problem.
+   ========================================================================== */
+.t965-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: 44px;
+  align-items: center;
+  width: 100%;
+}
+
+/* Single column well before it gets tight — the scene needs ~320px and the
+   copy needs ~300px, so two columns stop working below ~1024px. */
+@media (max-width: 1024px) {
+  .t965-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    text-align: center;
+  }
+  /* Scene first on mobile: it is the hook, and it keeps the CTA above the
+     fold rather than pushing it below a tall block of copy. */
+  .t965-hero-grid .t965-hero-copy { order: 2; }
+  .t965-hero-grid .t965-wb-sc     { order: 1; }
+
+  .t965-hero-copy .t965-lede { margin-inline: auto; }
+  .t965-hero-copy > div[style*="display:flex"] { justify-content: center; }
+  .t965-chips { justify-content: center; }
+}
+
+@media (max-width: 768px) {
+  .t965-wb-stick { padding: 14px 0 26px; }
+  .t965-h1   { font-size: clamp(26px, 7.4vw, 34px); line-height: 1.22; margin: 12px 0 10px; }
+  .t965-lede { font-size: 15px; line-height: 1.7; margin-bottom: 18px; }
+  .t965-eyebrow { font-size: 12.5px; padding: 7px 13px; }
+  .t965-chip { font-size: 12px; padding: 7px 11px; }
+
+  /* Full-width primary CTA is far easier one-thumb than a shrunken pill. */
+  .t965-hero-copy .t965-btn--coral,
+  .t965-hero-copy .t965-btn--outline { flex: 1 1 100%; }
+
+  /* Section rhythm was desktop-sized and made the page feel endless. */
+  .t965-sec { padding-bottom: 34px !important; }
+  .t965-wrap { padding-inline: 14px; }
+
+  /* Section headings were clamping to desktop sizes inside flex rows. */
+  .t965-sec h2 { font-size: 21px !important; line-height: 1.3; }
+  .t965-sec h2 + p, .t965-sec p { font-size: 13.5px !important; }
+
+  /* Shelf banners: let the portrait art breathe instead of being letterboxed. */
+  .t965-shelf__banner { border-radius: 18px; margin-bottom: 12px; }
+  .t965-shelf__banner img { transform: none; }   /* no parallax scale on mobile */
+
+  .t965-cat__name { font-size: 12.5px; line-height: 1.35; }
+  .t965-age h3 { font-size: 17px; }
+  .t965-age p  { font-size: 12.5px; }
+  .t965-age img { width: 48px; height: 48px; }
+  .t965-age { min-height: 0; padding: 16px 13px; }
+
+  .t965-trust { padding: 14px; gap: 10px; }
+  .t965-trust img { width: 36px; height: 36px; }
+  .t965-trust b { font-size: 14.5px; }
+  .t965-trust span { font-size: 12.5px; }
+
+  .t965-marquee { font-size: 12.5px; padding: 7px 0; }
+  .t965-marquee__track, .t965-marquee__group { gap: 28px; }
+}
+
+/* Very small phones */
+@media (max-width: 400px) {
+  .t965-hcat  { width: 96px; }
+  .t965-hcard { width: 148px; }
+  .t965-h1 { font-size: 25px; }
+}
+
+/* ==========================================================================
+   16. الفئات / الماركات PAGES
+   ========================================================================== */
+.t965-pagehead { text-align: center; padding: 28px 0 22px; }
+.t965-pagehead h1 {
+  font-family: var(--t965-font-d); font-weight: 800;
+  font-size: clamp(26px, 4.4vw, 44px); margin: 0 0 6px;
+}
+.t965-pagehead p { color: var(--t965-soft); margin: 0; font-size: 15px; }
+
+/* Category grid */
+.t965-catgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.t965-catgrid .t965-cat__name { margin-top: 10px; font-size: 14px; }
+.t965-catcount { display: block; font-size: 12px; color: var(--t965-soft); margin-top: 2px; }
+
+/* Brand grid — logos are contained, never cropped or recoloured. */
+.t965-brandgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.t965-brandcard {
+  background: #fff; border: 2px solid var(--t965-line-2); border-radius: 20px;
+  padding: 16px 12px; display: grid; place-items: center; gap: 10px;
+  box-shadow: 0 8px 24px rgba(45,42,69,.06); color: var(--t965-ink);
+  transition: transform .25s ease, box-shadow .3s ease;
+}
+.t965-brandcard__logo {
+  width: 100%; height: 64px;
+  display: grid; place-items: center;
+}
+.t965-brandcard__logo img {
+  max-width: 100%; max-height: 64px;
+  width: auto; height: auto;
+  object-fit: contain;
+}
+.t965-brandcard b { font-size: 13.5px; font-weight: 700; text-align: center; }
+.t965-brandcard small { font-size: 11.5px; color: var(--t965-soft); }
+
+/* A brand with no stock yet is dimmed rather than hidden — the owner asked
+   for the full wall of brands. It still links to its archive. */
+.t965-brandcard--empty { opacity: .55; }
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .t965-brandcard:hover { transform: translateY(-5px); box-shadow: 0 22px 44px rgba(45,42,69,.16); }
+}
+
+@media (max-width: 1024px) {
+  .t965-catgrid, .t965-brandgrid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 768px) {
+  .t965-catgrid, .t965-brandgrid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .t965-brandcard { padding: 12px 8px; border-radius: 16px; }
+  .t965-brandcard__logo, .t965-brandcard__logo img { height: 46px; max-height: 46px; }
+  .t965-brandcard b { font-size: 12px; }
+}
+@media (max-width: 400px) {
+  .t965-catgrid, .t965-brandgrid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* -------------------------------------------------------------------------
+ * 17. Page-title suppression
+ *
+ * Our page templates print their own <h1>. Woodmart also renders a full-bleed
+ * blue banner with a second <h1>, which is both an a11y problem (two top-level
+ * headings) and a palette clash. toys965_suppress_page_title() filters it out;
+ * this rule is the fallback if a theme update ever drops that filter.
+ * ---------------------------------------------------------------------- */
+body.t965-no-page-title .wd-page-title,
+body.t965-no-page-title .page-title { display: none !important; }
+
+/* -------------------------------------------------------------------------
+ * 18. Section head + brand rail logos
+ *
+ * The brand rail now carries real logos. Logos are only ever contained —
+ * never recoloured, cropped or mirrored — so each sits in a fixed box with
+ * object-fit:contain and the card grows around it.
+ * ---------------------------------------------------------------------- */
+.t965-sechead {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; margin-bottom: 20px;
+}
+.t965-seclink {
+  flex: none; font-weight: 700; font-size: 14px;
+  color: var(--t965-coral); text-decoration: none;
+}
+.t965-seclink:hover { text-decoration: underline; }
+
+.t965-hrow .t965-brand { min-width: 132px; }
+.t965-hrow .t965-brand .t965-brandcard__logo {
+  display: flex; align-items: center; justify-content: center;
+  height: 44px; margin-bottom: 8px;
+}
+.t965-hrow .t965-brand .t965-brandcard__logo img {
+  max-width: 100%; max-height: 100%;
+  width: auto; height: auto; object-fit: contain;
+}
+
+@media (max-width: 640px) {
+  .t965-sechead { margin-bottom: 14px; }
+  .t965-sechead h2 { font-size: 20px !important; }
+  .t965-seclink { font-size: 13px; }
+  .t965-hrow .t965-brand { min-width: 116px; }
+  .t965-hrow .t965-brand .t965-brandcard__logo { height: 36px; }
+}
+.t965-brandnote {
+  margin: 0 0 16px; text-align: center;
+  color: var(--t965-soft); font-size: 14px;
+}
+
+/* ==========================================================================
+   FOOTER
+
+   Woodmart's Elementor footer is hidden (never deleted — see inc/footer.php)
+   and ours renders from wp_footer as the last body child. A display:none
+   element leaves the accessibility tree, so only one contentinfo landmark is
+   exposed even though two exist in the DOM.
+   ========================================================================== */
+.wd-footer { display: none !important; }
+
+.t965-footer {
+  background: var(--t965-ink);
+  color: #E9E6F7;
+  font-family: var(--t965-font-b);
+  margin-block-start: 40px;
+  /* Clears the fixed mobile bottom nav so the copyright is never trapped
+     underneath it. */
+  padding-block-end: env(safe-area-inset-bottom);
+}
+
+.t965-footer__inner {
+  max-inline-size: 1200px;
+  margin-inline: auto;
+  padding: 52px 20px 36px;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+  gap: 40px;
+}
+
+/* ---- Brand column ---- */
+.t965-footer__logo {
+  display: inline-block;
+  margin-block-end: 16px;
+}
+.t965-footer__logo img {
+  inline-size: auto;
+  block-size: 46px;
+  max-inline-size: 100%;
+  object-fit: contain;
+}
+
+.t965-footer__blurb {
+  margin: 0 0 20px;
+  font-size: 14.5px;
+  line-height: 1.95;
+  color: #B9B4D6;
+  max-inline-size: 42ch;
+}
+
+.t965-footer__social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.t965-footer__social a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-block-size: 44px;
+  padding-inline: 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, .16);
+  background: rgba(255, 255, 255, .05);
+  color: #E9E6F7;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.t965-footer__social a:hover {
+  background: var(--t965-yellow);
+  border-color: var(--t965-yellow);
+  color: var(--t965-ink);
+}
+
+/* ---- Link columns ---- */
+.t965-footer__col h2 {
+  margin: 0 0 16px;
+  font-family: var(--t965-font-d);
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--t965-yellow);
+}
+.t965-footer__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.t965-footer__col li { margin-block-end: 4px; }
+.t965-footer__col li a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 40px;
+  color: #C9C4E0;
+  font-size: 14.5px;
+  text-decoration: none;
+  transition: color .2s ease, padding-inline-start .2s ease;
+}
+.t965-footer__col li a:hover {
+  color: var(--t965-yellow);
+}
+
+/* ---- Contact column ---- */
+.t965-footer__note {
+  margin: -8px 0 14px;
+  font-size: 13.5px;
+  color: #8F89AE;
+}
+.t965-footer__contact ul li a {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-block-size: 52px;
+  color: #E9E6F7;
+}
+.t965-footer__contact svg { flex: none; color: var(--t965-teal); }
+.t965-footer__contact span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+/* Latin phone numbers and emails inside RTL text need explicit isolation or
+   the leading + and the dots land on the wrong side. */
+.t965-footer__contact bdi {
+  unicode-bidi: isolate;
+  direction: ltr;
+  font-weight: 700;
+  font-size: 15px;
+}
+.t965-footer__contact small {
+  font-size: 12px;
+  color: #8F89AE;
+  font-weight: 400;
+}
+.t965-footer__wa svg { color: #25D366 !important; }
+
+/* ---- Trust strip ---- */
+.t965-footer__trust {
+  border-block-start: 1px solid rgba(255, 255, 255, .1);
+  border-block-end: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(0, 0, 0, .14);
+}
+.t965-footer__trustinner {
+  max-inline-size: 1200px;
+  margin-inline: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 30px;
+}
+.t965-footer__trustinner span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #C9C4E0;
+}
+
+/* ---- Bottom bar ---- */
+.t965-footer__bar {
+  max-inline-size: 1200px;
+  margin-inline: auto;
+  padding: 20px;
+  text-align: center;
+}
+.t965-footer__bar p {
+  margin: 0;
+  font-size: 13px;
+  color: #8F89AE;
+}
+
+.t965-footer a:focus-visible {
+  outline: 3px solid var(--t965-yellow);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 1024px) {
+  .t965-footer__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding-block-start: 40px;
+  }
+  .t965-footer__brand { grid-column: 1 / -1; }
+}
+
+
+
+/* --------------------------------------------------------------------------
+   Footer — phones.
+
+   MEASURED: the first pass stacked all four blocks in a single column and ran
+   1193px tall at 375px — 1.47 full screens of footer under every page. Almost
+   all of it was wasted: two link lists stacked vertically when they fit side by
+   side, and three contact rows each repeating the same phone number in a 52px
+   row.
+
+   This pass puts the link lists in two columns, turns contact into a row of
+   tap targets (the number lives in the href — repeating it twice on screen
+   bought nothing), and packs the trust strip into a 2x2 grid.
+   -------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+
+  .t965-footer__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 22px 18px;
+    padding: 28px 18px 22px;
+    text-align: start;
+  }
+
+  /* ---- Brand: full width, tighter ---- */
+  .t965-footer__brand {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+  .t965-footer__logo { margin-block-end: 12px; }
+  .t965-footer__logo img { block-size: 38px; }
+
+  .t965-footer__blurb {
+    margin: 0 auto 14px;
+    font-size: 13.5px;
+    line-height: 1.75;
+    max-inline-size: 34ch;
+  }
+
+  .t965-footer__social { justify-content: center; gap: 8px; }
+  .t965-footer__social a {
+    min-block-size: 40px;
+    padding-inline: 14px;
+    font-size: 13px;
+  }
+
+  /* ---- Link lists: two columns, not two stacks ---- */
+  .t965-footer__col { text-align: start; }
+  .t965-footer__col h2 {
+    margin-block-end: 8px;
+    font-size: 15px;
+  }
+  .t965-footer__col li { margin-block-end: 0; }
+  .t965-footer__col li a {
+    justify-content: flex-start;
+    min-block-size: 36px;
+    font-size: 13.5px;
+  }
+
+  /* ---- Contact: a row of actions, full width ---- */
+  .t965-footer__contact {
+    grid-column: 1 / -1;
+    margin-block-start: 2px;
+  }
+  .t965-footer__note { display: none; }
+
+  .t965-footer__contact ul {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .t965-footer__contact ul li a {
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    min-block-size: 68px;
+    padding: 10px 6px;
+    border-radius: 16px;
+    border: 2px solid rgba(255, 255, 255, .16);
+    background: rgba(255, 255, 255, .05);
+    text-align: center;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .t965-footer__contact ul li a:hover,
+  .t965-footer__contact ul li a:active {
+    background: rgba(255, 255, 255, .1);
+    border-color: rgba(255, 255, 255, .3);
+  }
+  .t965-footer__contact ul li a span { align-items: center; }
+
+  /* The number and the address are in the href — printing them as well cost
+     three 52px rows and forced the email to wrap. The label is the affordance. */
+  .t965-footer__contact bdi { display: none; }
+  .t965-footer__contact small {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #E9E6F7;
+  }
+
+  /* WhatsApp is the primary channel in Kuwait — give it the brand colour. */
+  .t965-footer__wa {
+    border-color: rgba(37, 211, 102, .45) !important;
+    background: rgba(37, 211, 102, .12) !important;
+  }
+
+  /* ---- Trust: 2x2 ---- */
+  .t965-footer__trustinner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    padding: 14px 18px;
+  }
+  .t965-footer__trustinner span {
+    font-size: 12px;
+    font-weight: 400;
+    align-items: flex-start;
+    line-height: 1.4;
+  }
+
+  /* ---- Bottom bar ---- */
+  .t965-footer__bar { padding: 14px 18px 78px; }
+  .t965-footer__bar p { font-size: 12px; }
+}
+
+/* Very narrow phones: three contact pills still fit, links stay two-up. */
+@media (max-width: 340px) {
+  .t965-footer__contact ul { gap: 7px; }
+  .t965-footer__contact small { font-size: 11.5px; }
+  .t965-footer__trustinner { grid-template-columns: 1fr; }
+}

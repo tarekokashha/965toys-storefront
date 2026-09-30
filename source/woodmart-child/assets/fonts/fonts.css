@@ -1,0 +1,77 @@
+/* ==========================================================================
+   965TOYS — SELF-HOSTED FONTS
+
+   Per the design handoff: Baloo Bhaijaan 2 for display/headings, Rubik for
+   body/UI. Both carry Arabic, which is the requirement here — the store is
+   ar_KW and product titles mix Arabic with Latin brand names.
+
+   Self-hosted rather than loaded from Google so the store makes no
+   third-party request on the critical path (the handoff allows either;
+   self-hosting is also the GDPR-safe option it mentions).
+
+   Subsets are split by unicode-range, so an Arabic page downloads only the
+   Arabic faces (~69 KB) and pulls Latin in only when a product title
+   actually contains it.
+
+   Both families are SIL Open Font License 1.1 — redistribution and
+   self-hosting are permitted.
+   ========================================================================== */
+
+/* ---------- Baloo Bhaijaan 2 — display ---------- */
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("./BalooBhaijaan2-arabic.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1,
+                 U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41,
+                 U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("./BalooBhaijaan2-latin.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("./BalooBhaijaan2-latin-ext.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+                 U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF,
+                 U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------- Rubik — body / UI ---------- */
+
+@font-face {
+  font-family: "Rubik";
+  src: url("./Rubik-arabic.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1,
+                 U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41,
+                 U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("./Rubik-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}

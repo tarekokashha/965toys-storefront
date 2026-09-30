@@ -1,0 +1,863 @@
+/* ==========================================================================
+   965TOYS — WOODMART BRIDGE (v2)
+   Loaded LAST. This is what makes the WHOLE STORE adopt the design, not just
+   the homepage template.
+
+   WHY IT WORKS THIS WAY
+   Woodmart routes nearly everything through ~257 CSS custom properties
+   (--wd-*) emitted in an inline <style> in <head> — after our enqueued files.
+   Restyling `body { font-family }` directly loses the cascade. Redefining
+   Woodmart's own variables in terms of our tokens makes the header, shop grid,
+   product page, cart, checkout, widgets and mobile nav all follow.
+
+   `html:root` rather than `:root` — the extra specificity beats Woodmart's
+   later inline block.
+
+   Only var(--t965-*) tokens may be referenced here. No raw hex.
+   ========================================================================== */
+
+html:root,
+html body,
+.wd-content-layout,
+[class*="wd-"] {
+
+  /* ---- typography ---- */
+  --wd-text-font:                  var(--t965-font-b);
+  --wd-title-font:                 var(--t965-font-d);
+  --wd-entities-title-font:        var(--t965-font-b);
+  --wd-alternative-font:           var(--t965-font-d);
+  --wd-header-el-font:             var(--t965-font-b);
+  --wd-widget-title-font:          var(--t965-font-d);
+
+  --wd-text-font-size:             16px;
+  --wd-text-line-height:           1.8;
+  --wd-text-font-weight:           400;
+  --wd-title-font-weight:          800;
+  --wd-entities-title-font-weight: 600;
+  --wd-header-el-font-weight:      600;
+
+  /* ---- colour ----
+     Woodmart shipped body text at rgb(118,118,118) on white — about 3.9:1,
+     under the 4.5:1 required for body copy. The design's soft ink on cream
+     measures 5.6:1, so this mapping is an accessibility fix too. */
+  --wd-text-color:                 var(--t965-soft);
+  --wd-title-color:                var(--t965-ink);
+  --wd-entities-title-color:       var(--t965-ink);
+  --wd-entities-title-color-hover: var(--t965-coral);
+  --wd-widget-title-color:         var(--t965-ink);
+
+  --wd-primary-color:              var(--t965-coral);
+  --wd-alternative-color:          #ffffff;
+
+  --wd-link-color:                 var(--t965-coral);
+  --wd-link-color-hover:           var(--t965-coral-hov);
+
+  --wd-main-bgcolor:               var(--t965-cream);
+
+  /* WCAG 1.4.11 wants >=3:1 on control boundaries; Woodmart's default
+     rgba(0,0,0,.1) is nowhere near it. */
+  --wd-form-brd-color:             var(--t965-line);
+  --wd-form-brd-color-focus:       var(--t965-violet);
+  --wd-form-bg:                    #ffffff;
+}
+
+/* ==========================================================================
+   GROUND
+   ========================================================================== */
+body,
+.wd-page-wrapper,
+.website-wrapper,
+.main-page-wrapper {
+  background-color: var(--t965-cream);
+}
+
+/* ==========================================================================
+   HEADER
+   Restyled rather than replaced, so search, account, wishlist, the cart drawer
+   and the mobile off-canvas menu keep working — which the brief asks for.
+   ========================================================================== */
+.whb-header,
+.whb-main-header {
+  background-color: rgba(255, 249, 239, .85) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.whb-header .whb-main-header { border-bottom: 2px solid var(--t965-line); }
+
+.whb-header .wd-nav > li > a {
+  font-family: var(--t965-font-b);
+  font-weight: 600;
+  font-size: 15.5px;
+  color: var(--t965-ink);
+}
+.whb-header .wd-nav > li > a:hover { color: var(--t965-coral); }
+
+/* Cart pill: yellow with the hard offset shadow from the spec. */
+.whb-header .wd-header-cart .wd-tools-element > a {
+  background: var(--t965-yellow);
+  color: var(--t965-ink);
+  border-radius: var(--t965-r-pill);
+  padding-inline: 18px;
+  box-shadow: 0 4px 0 var(--t965-yellow-sh);
+  font-weight: 700;
+}
+.whb-header .wd-header-cart .wd-tools-icon::before { color: var(--t965-ink); }
+
+.whb-header .wd-header-wishlist .wd-tools-icon,
+.whb-header .wd-header-my-account .wd-tools-icon,
+.whb-header .wd-header-search .wd-tools-icon {
+  border: 2px solid var(--t965-line);
+  background: #fff;
+  border-radius: 50%;
+}
+
+/* ==========================================================================
+   SHOP / ARCHIVE PRODUCT CARDS
+   So category, brand, age and search pages match the homepage shelves.
+   ========================================================================== */
+.wd-product .product-wrapper {
+  background: #fff;
+  border-radius: var(--t965-r-card);
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(45,42,69,.08);
+  transition: transform .25s ease, box-shadow .3s ease;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .wd-product .product-wrapper:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 44px rgba(45,42,69,.16);
+  }
+}
+
+.wd-product .product-image-link,
+.wd-product .product-element-top {
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.wd-product .wd-entities-title {
+  font-family: var(--t965-font-b) !important;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.5;
+  unicode-bidi: isolate;
+}
+.wd-product .wd-entities-title a { color: var(--t965-ink); }
+.wd-product .wd-entities-title a:hover { color: var(--t965-coral); }
+
+/* Currency format (0.000 د.ك) comes from WooCommerce and is untouched. */
+.price,
+.woocommerce-Price-amount,
+.wd-product .price {
+  font-family: var(--t965-font-d);
+  font-weight: 800;
+  color: var(--t965-coral);
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "lnum" 1;
+}
+del .woocommerce-Price-amount { color: var(--t965-soft); font-weight: 400; }
+ins .woocommerce-Price-amount { color: var(--t965-coral); text-decoration: none; }
+
+/* Hard 2 columns on phones — an explicit owner requirement. */
+@media (max-width: 640px) {
+  .woocommerce ul.products,
+  .wd-products {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+/* ==========================================================================
+   BUTTONS — sitewide
+   ========================================================================== */
+.single_add_to_cart_button,
+.wd-buy-now-btn,
+.checkout-button,
+.button.alt,
+.wc-block-components-button,
+.btn.btn-color-primary,
+.wd-product .add_to_cart_button {
+  background-color: var(--t965-coral) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--t965-r-pill) !important;
+  font-family: var(--t965-font-b) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 5px 0 var(--t965-coral-sh);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .single_add_to_cart_button:hover,
+  .checkout-button:hover,
+  .button.alt:hover,
+  .wd-product .add_to_cart_button:hover { transform: translateY(-3px); }
+  .single_add_to_cart_button:active,
+  .checkout-button:active,
+  .button.alt:active { transform: scale(.96); box-shadow: 0 2px 0 var(--t965-coral-sh); }
+}
+
+.button:not(.alt):not(.checkout-button):not(.add_to_cart_button) {
+  border-radius: var(--t965-r-pill);
+  font-family: var(--t965-font-b);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   FORMS
+   ========================================================================== */
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"],
+input[type="password"], input[type="search"], select, textarea,
+.wd-form-control {
+  border-radius: 14px !important;
+  border: 2px solid var(--t965-line) !important;
+  background: #fff;
+  font-family: var(--t965-font-b);
+  min-block-size: 46px;
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  border-color: var(--t965-violet) !important;
+  outline: 3px solid var(--t965-violet);
+  outline-offset: 1px;
+}
+
+/* ==========================================================================
+   FOCUS — Woodmart strips outlines in several places (WCAG 2.4.7)
+   ========================================================================== */
+a:focus-visible,
+button:focus-visible,
+.wd-nav a:focus-visible {
+  outline: 3px solid var(--t965-violet) !important;
+  outline-offset: 3px !important;
+}
+
+/* ==========================================================================
+   HEADINGS + ARABIC
+   ========================================================================== */
+h1, h2, h3, h4, h5, h6,
+.elementor-heading-title,
+.wd-widget-title,
+.woocommerce-loop-category__title {
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800;
+  color: var(--t965-ink);
+  letter-spacing: 0 !important;
+}
+
+[dir="rtl"] .wd-nav > li > a,
+[dir="rtl"] .wd-entities-title,
+[dir="rtl"] .widget-title,
+[dir="rtl"] .button,
+[dir="rtl"] button {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* ==========================================================================
+   FOOTER
+   Superseded. Woodmart's Elementor footer is now hidden and replaced by our
+   own (see inc/footer.php and the FOOTER section of 965toys.css). The ~30
+   lines of restyling that used to live here only ever targeted an element
+   that is now display:none.
+   ========================================================================== */
+
+/* ==========================================================================
+   PRODUCT PAGE
+   The PDP is a Woodmart Elementor layout (wd_single_product_* widgets), not the
+   stock WooCommerce template, so everything here targets the widget output.
+   ========================================================================== */
+
+.single-product-page .product_title {
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  margin-block-end: 6px;
+}
+
+/* Price: the one number on the page that must win the eye. */
+.single-product-page p.price,
+.single-product-page p.price .woocommerce-Price-amount {
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800 !important;
+  font-size: clamp(24px, 4.4vw, 32px) !important;
+  color: var(--t965-ink) !important;
+}
+.single-product-page p.price del .woocommerce-Price-amount {
+  font-size: 18px !important;
+  color: var(--t965-soft) !important;
+  font-weight: 400 !important;
+}
+.single-product-page p.price ins .woocommerce-Price-amount { color: var(--t965-coral) !important; }
+
+/* Gallery: rounded card with the design's outline, matching product cards. */
+.single-product-page .woocommerce-product-gallery {
+  border: 2px solid var(--t965-line);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Description tab body: now populated for the 148 products that only ever had
+   a short description. Arabic needs the taller line box. */
+.woocommerce-Tabs-panel,
+.t965-desc {
+  font-family: var(--t965-font-b);
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--t965-ink);
+}
+.t965-desc p { margin-block-end: 1em; }
+.t965-desc ul { padding-inline-start: 1.2em; margin-block-end: 1em; }
+.t965-desc li { margin-block-end: .4em; }
+
+/* Reassurance strip under the buy button. */
+.t965-pdp-trust {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  background: var(--t965-cream);
+  border: 2px solid var(--t965-line);
+  border-radius: 18px;
+  display: grid;
+  gap: 10px;
+}
+.t965-pdp-trust li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--t965-font-b);
+  font-size: 14.5px;
+  color: var(--t965-ink);
+  line-height: 1.5;
+}
+.t965-pdp-trust span { font-size: 19px; flex: none; }
+
+/* The SKU carries a "965play-" prefix leaked in from an import. It reads as
+   another shop's code, so it is de-emphasised rather than removed: the value
+   itself is real inventory data. */
+.single-product-page .product_meta .sku_wrapper {
+  color: var(--t965-soft);
+  font-size: 12.5px;
+  word-break: break-all;
+}
+
+/* An empty share row was rendering as a dangling label. */
+.single-product-page .wd-social-icons:not(:has(a)) { display: none; }
+
+/* ==========================================================================
+   ADD TO CART — the primary action, sitewide
+   ========================================================================== */
+.single_add_to_cart_button,
+.checkout-button,
+.button.alt {
+  min-block-size: 54px !important;
+  padding-inline: 30px !important;
+  font-size: 17px !important;
+  letter-spacing: 0 !important;
+  box-shadow: 0 6px 0 var(--t965-coral-sh) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* On the product page this is the whole point of the page: give it the width. */
+.single-product-page form.cart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+}
+.single-product-page .single_add_to_cart_button {
+  flex: 1 1 220px;
+  inline-size: auto !important;
+}
+
+@media (max-width: 640px) {
+  .single-product-page form.cart { gap: 10px; }
+  .single-product-page .single_add_to_cart_button {
+    flex: 1 1 100%;
+    inline-size: 100% !important;
+  }
+}
+
+/* Quantity stepper: was 30x30, under the 44px minimum touch target
+   (WCAG 2.5.8). Matched to the button height so the row reads as one control. */
+.quantity,
+.single-product-page .quantity {
+  display: inline-flex !important;
+  align-items: stretch;
+  border: 2px solid var(--t965-line);
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+  block-size: 54px;
+}
+.quantity input.qty {
+  inline-size: 54px !important;
+  min-block-size: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  text-align: center;
+  font-family: var(--t965-font-d);
+  font-weight: 800;
+  font-size: 17px;
+  background: transparent;
+}
+.quantity .minus,
+.quantity .plus,
+.quantity > a {
+  inline-size: 46px;
+  min-block-size: 44px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: none !important;
+  background: transparent !important;
+  color: var(--t965-ink) !important;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.quantity .minus:hover,
+.quantity .plus:hover { background: var(--t965-cream) !important; }
+
+/* WhatsApp CTA sits under the buy button as the parallel conversion path. */
+.t-btn--wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-block-size: 50px;
+  inline-size: 100%;
+  margin-block-start: 12px;
+  border-radius: 999px;
+  border: 2px solid #25D366;
+  background: #fff;
+  color: #128C4A !important;
+  font-family: var(--t965-font-b);
+  font-weight: 700;
+  font-size: 15.5px;
+  text-decoration: none;
+  transition: background .2s ease;
+}
+.t-btn--wa:hover { background: #EAFBF1; }
+
+/* ==========================================================================
+   CART
+   ========================================================================== */
+
+/* Woodmart's coupon and secondary buttons default to a bright blue that belongs
+   to no part of this palette. */
+.woocommerce-cart .button:not(.checkout-button):not(.alt),
+.woocommerce-cart button.button:not(.alt) {
+  background: var(--t965-ink) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 999px !important;
+  min-block-size: 48px;
+  font-family: var(--t965-font-b) !important;
+  font-weight: 700 !important;
+}
+
+/* Each line item becomes a card instead of a table row with dotted rules. */
+@media (max-width: 768px) {
+  .woocommerce-cart table.shop_table_responsive tbody tr.cart_item {
+    display: block;
+    background: #fff;
+    border: 2px solid var(--t965-line) !important;
+    border-radius: 20px;
+    padding: 14px;
+    margin-block-end: 14px;
+    box-shadow: 0 4px 0 rgba(45, 42, 69, .06);
+    position: relative;
+  }
+  .woocommerce-cart table.shop_table_responsive tbody tr.cart_item td {
+    border: none !important;
+    padding: 6px 0 !important;
+  }
+  .woocommerce-cart table.shop_table_responsive tbody tr.cart_item td::before {
+    font-family: var(--t965-font-b);
+    font-weight: 700;
+    color: var(--t965-soft);
+  }
+  .woocommerce-cart .cart_item .product-thumbnail { display: block !important; }
+  .woocommerce-cart .cart_item .product-thumbnail img {
+    inline-size: 92px;
+    block-size: 92px;
+    object-fit: contain;
+    border-radius: 16px;
+    background: var(--t965-cream);
+  }
+}
+
+.woocommerce-cart .cart_item .product-name a {
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800;
+  color: var(--t965-ink) !important;
+  line-height: 1.5;
+}
+
+/* Remove control: was a bare 30x30 glyph. Now a real 40px round target. */
+.woocommerce-cart .product-remove a,
+.woocommerce-cart td.product-remove a.remove {
+  inline-size: 40px !important;
+  block-size: 40px !important;
+  min-block-size: 40px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--t965-cream) !important;
+  color: var(--t965-ink) !important;
+  border: 2px solid var(--t965-line);
+  font-size: 17px;
+  line-height: 1;
+  transition: background .2s ease, color .2s ease;
+}
+.woocommerce-cart .product-remove a:hover {
+  background: var(--t965-coral) !important;
+  border-color: var(--t965-coral);
+  color: #fff !important;
+}
+
+/* Totals panel: the design's card, with the grand total as the loudest line. */
+.woocommerce-cart .cart_totals {
+  background: #fff;
+  border: 2px solid var(--t965-line);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 6px 0 rgba(45, 42, 69, .06);
+}
+.woocommerce-cart .cart_totals h2 {
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800 !important;
+  font-size: 20px !important;
+  margin-block-end: 14px;
+}
+.woocommerce-cart .cart_totals .order-total td,
+.woocommerce-cart .cart_totals .order-total th {
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800 !important;
+  font-size: 20px !important;
+  color: var(--t965-ink) !important;
+}
+.woocommerce-cart .cart_totals .checkout-button {
+  inline-size: 100%;
+  margin-block-start: 16px;
+}
+
+/* Free-delivery progress bar */
+.t-freeship { margin-block-end: 18px; }
+.t-freeship__bar {
+  block-size: 12px;
+  border-radius: 999px;
+  background: var(--t965-line);
+  overflow: hidden;
+}
+.t-freeship__fill {
+  block-size: 100%;
+  inline-size: calc(var(--pct, 0) * 1%);
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--t965-teal), var(--t965-yellow));
+  transition: inline-size .5s cubic-bezier(.2, .7, .3, 1);
+}
+.t-freeship__msg {
+  margin: 8px 0 0;
+  font-family: var(--t965-font-b);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--t965-ink);
+  text-align: center;
+}
+
+/* An empty cross-sell block was rendering as a heading with nothing under it. */
+.woocommerce-cart .cross-sells:not(:has(.product)) { display: none; }
+
+/* Woodmart paints its page-title banner in a stock blue that belongs to no
+   part of this palette. On cart/checkout/product it is the only page heading,
+   so it is recoloured to the cream ground rather than hidden (unlike our own
+   page templates, which print their own H1 and suppress it entirely). */
+.woocommerce-cart .wd-page-title,
+.woocommerce-checkout .wd-page-title,
+.single-product .wd-page-title,
+.woocommerce-account .wd-page-title {
+  background: var(--t965-cream) !important;
+  background-image: none !important;
+  border-block-end: 2px solid var(--t965-line);
+  padding-block: 22px !important;
+}
+.woocommerce-cart .wd-page-title .entry-title,
+.woocommerce-checkout .wd-page-title .entry-title,
+.single-product .wd-page-title .entry-title,
+.woocommerce-account .wd-page-title .entry-title {
+  color: var(--t965-ink) !important;
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+.woocommerce-cart .wd-page-title .breadcrumbs,
+.woocommerce-cart .wd-page-title a,
+.single-product .wd-page-title a { color: var(--t965-soft) !important; }
+
+/* Add-to-cart feedback states (see cartHooks in 965toys.js). */
+.single_add_to_cart_button.t965-busy,
+.add_to_cart_button.t965-busy {
+  opacity: .75;
+  pointer-events: none;
+}
+.single_add_to_cart_button.t965-added,
+.add_to_cart_button.t965-added {
+  background-color: var(--t965-teal) !important;
+  box-shadow: 0 6px 0 #0E8D8B !important;
+}
+
+/* --------------------------------------------------------------------------
+   Product tabs on mobile.
+
+   MEASURED BUG: Woodmart's stylesheet sets `.tabs-layout-tabs { display:none }`
+   below 1024px, because that layout is meant to be swapped for the accordion
+   layout at mobile breakpoints. The Elementor product template (id 29318) is
+   configured as "tabs" at every breakpoint, so below 1024px the whole block —
+   description AND reviews — simply disappeared. Every product, every phone.
+
+   The accordion markup is already in the DOM (.wd-accordion-item, one per tab),
+   so the fix is to show the container and let those items render stacked and
+   expanded. Rendering them expanded rather than collapsed means this depends on
+   no JS at all: the description cannot end up hidden again.
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .single-product-page .woocommerce-tabs.tabs-layout-tabs { display: block !important; }
+
+  /* The horizontal tab strip is redundant once items are stacked. */
+  .single-product-page .woocommerce-tabs > .wd-nav-wrapper { display: none !important; }
+
+  .single-product-page .wd-accordion-item {
+    background: #fff;
+    border: 2px solid var(--t965-line);
+    border-radius: 18px;
+    margin-block-end: 12px;
+    overflow: hidden;
+  }
+  .single-product-page .wd-accordion-title {
+    display: flex;
+    align-items: center;
+    min-block-size: 52px;
+    padding: 12px 18px;
+    margin: 0;
+    background: var(--t965-cream);
+    border-block-end: 2px solid var(--t965-line);
+    font-family: var(--t965-font-d);
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--t965-ink);
+  }
+  .single-product-page .wd-accordion-title::after { display: none; }
+
+  .single-product-page .wd-accordion-item .woocommerce-Tabs-panel {
+    display: block !important;
+    padding: 16px 18px;
+  }
+}
+
+/* Woodmart hides the accordion headings while the tabs layout is active, with
+   a more specific selector than ours. Force them back: without a heading the
+   description and the reviews run together as one wall of text. */
+@media (max-width: 1024px) {
+  .single-product-page .woocommerce-tabs .wd-accordion-item > .wd-accordion-title {
+    display: flex !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Commerce page-title banner.
+
+   Recolouring the container was not enough: the blue comes from an <img>
+   (toys-page-title.jpg) inside .wd-page-title-bg, painted over the background.
+   Hide the fill layer so the cream ground shows, and force the heading dark —
+   Woodmart's `color-scheme-light` class assumes white text on that photo.
+   -------------------------------------------------------------------------- */
+.woocommerce-cart .wd-page-title .wd-page-title-bg,
+.woocommerce-checkout .wd-page-title .wd-page-title-bg,
+.single-product .wd-page-title .wd-page-title-bg,
+.woocommerce-account .wd-page-title .wd-page-title-bg { display: none !important; }
+
+.woocommerce-cart .wd-page-title,
+.woocommerce-checkout .wd-page-title,
+.single-product .wd-page-title,
+.woocommerce-account .wd-page-title { color: var(--t965-ink) !important; }
+
+.woocommerce-cart .wd-page-title *,
+.woocommerce-checkout .wd-page-title *,
+.single-product .wd-page-title *,
+.woocommerce-account .wd-page-title * { color: var(--t965-ink) !important; }
+
+.woocommerce-cart .wd-page-title a:hover,
+.woocommerce-checkout .wd-page-title a:hover { color: var(--t965-coral) !important; }
+
+/* --------------------------------------------------------------------------
+   Cart remove control.
+
+   Woodmart draws the X as a PUA glyph (U+F112, woodmart-font) in ::before AND
+   leaves a literal "×" text node in the anchor, which the theme normally hides
+   by zeroing the font size. Our larger tap-target rule re-enabled that text, so
+   every row showed two X's. Zero the anchor text and size the icon instead.
+   -------------------------------------------------------------------------- */
+.woocommerce-cart .product-remove a.remove { font-size: 0 !important; }
+.woocommerce-cart .product-remove a.remove::before {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* --------------------------------------------------------------------------
+   The remove control is absolutely positioned in the row's inline-end corner,
+   so without a reserved gutter the product name ran underneath it and the
+   start of every title was unreadable.
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .woocommerce-cart table.shop_table_responsive tbody tr.cart_item {
+    padding-inline-end: 58px;
+  }
+  .woocommerce-cart table.shop_table_responsive tbody tr.cart_item .product-remove {
+    inset-block-start: 12px;
+  }
+  .woocommerce-cart .cart_item .product-name {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Cart row layout on mobile.
+
+   Woodmart absolutely positions BOTH .product-remove (inline-end) and
+   .product-thumbnail (inline-start) over a row whose remaining cells are
+   ordinary static blocks spanning the full width. Measured: the thumbnail
+   occupied x 258-358 while .product-name spanned 75-344, so in RTL the first
+   86px of every product title — the part the eye reads first — sat underneath
+   the image. Reserving a gutter on each side is what the absolute positioning
+   always assumed and never declared.
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .woocommerce-cart table.shop_table_responsive tbody tr.cart_item {
+    padding-inline-start: 118px;
+    padding-inline-end: 58px;
+    min-block-size: 124px;
+  }
+
+  .woocommerce-cart table.shop_table_responsive tbody tr.cart_item .product-thumbnail {
+    inset-block-start: 14px;
+    inset-inline-start: 14px;
+    inline-size: 92px;
+  }
+  .woocommerce-cart .cart_item .product-thumbnail img {
+    inline-size: 92px;
+    block-size: 92px;
+  }
+
+  /* Long Arabic titles get two lines rather than being cut off. */
+  .woocommerce-cart .cart_item .product-name {
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Orphaned cross-sell heading on the cart.
+
+   The Elementor cart template pairs a wd_title widget ("قد تكون مهتمًا بـ")
+   with a cross-sells products widget. WooCommerce outputs nothing at all when
+   no product has cross-sells configured — as here — so the products widget is
+   absent from the DOM entirely and the heading is left dangling over empty
+   space. Hide the container only while the title is its ONLY child, so the
+   heading returns by itself the day cross-sells are set up.
+   -------------------------------------------------------------------------- */
+.woocommerce-cart .e-con-inner:has(> .elementor-widget-wd_title:only-child) {
+  display: none !important;
+}
+
+/* ==========================================================================
+   DELIVERY OPTIONS
+   ========================================================================== */
+.t965-ship {
+  margin-block-start: 26px;
+  padding: 20px;
+  background: #fff;
+  border: 2px solid var(--t965-line);
+  border-radius: 22px;
+  box-shadow: 0 6px 0 rgba(45, 42, 69, .06);
+}
+.t965-ship h2 {
+  margin: 0 0 14px;
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800 !important;
+  font-size: 19px !important;
+}
+.t965-ship h3 {
+  margin: 22px 0 10px;
+  font-family: var(--t965-font-d) !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  color: var(--t965-ink);
+}
+
+.t965-ship__list { list-style: none; margin: 0; padding: 0; }
+.t965-ship__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 0;
+  border-block-end: 1px dashed var(--t965-line);
+  font-family: var(--t965-font-b);
+  font-size: 15px;
+  color: var(--t965-ink);
+}
+.t965-ship__list li:last-child { border-block-end: none; }
+.t965-ship__list li span { display: flex; flex-direction: column; gap: 3px; }
+.t965-ship__list li small { font-size: 12.5px; color: var(--t965-soft); }
+.t965-ship__list li b {
+  flex: none;
+  font-family: var(--t965-font-d);
+  font-weight: 800;
+  font-size: 15.5px;
+  color: var(--t965-coral);
+  unicode-bidi: isolate;
+}
+
+/* Express outside its window: shown, but visibly unavailable rather than
+   silently missing — a shopper who came for it deserves to know why. */
+.t965-ship--closed { opacity: .55; }
+.t965-ship--closed b { color: var(--t965-soft); text-decoration: line-through; }
+
+.t965-ship__list--remote li b { color: var(--t965-ink); }
+
+.t965-ship__note {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: var(--t965-cream);
+  border-radius: 14px;
+  font-family: var(--t965-font-b);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--t965-ink);
+}
+
+/* Product-page one-liner */
+.t965-ship__hint {
+  margin: 12px 0 0;
+  font-family: var(--t965-font-b);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--t965-soft);
+}
+
+@media (max-width: 640px) {
+  .t965-ship { padding: 16px; border-radius: 18px; }
+  .t965-ship h2 { font-size: 17px !important; }
+  .t965-ship__list li { font-size: 14px; padding: 10px 0; }
+  .t965-ship__list li b { font-size: 14.5px; }
+}
