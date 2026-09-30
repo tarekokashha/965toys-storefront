@@ -22,7 +22,7 @@ These points describe the local implementation. They are not a claim that every 
 
 ## Repository contents
 
-`source/woodmart-child/` contains the reviewed text source from the local child theme: PHP templates, CSS, and JavaScript. It excludes the Woodmart parent theme, customer data, store configuration, generated archives, and font binaries. The source is shared for portfolio review. It is not a complete installable store.
+`source/woodmart-child/` contains selected, reviewed text source from the local child theme: styling, front-end behavior, and setup components. The full theme includes operational and catalog details that are not published. This repository also excludes the Woodmart parent theme, customer data, store configuration, generated archives, and font binaries. The source is shared for portfolio review. It is not a complete installable store.
 
 ## Technical notes
 
@@ -35,4 +35,3 @@ The child theme declares `woodmart` as its parent. It depends on a licensed Wood
 ## Rights and attribution
 
 The original child-theme code is shared under GPL-2.0-or-later. Brand marks, product images, store content, third-party themes, and fonts are outside that code license. See [LICENSE-SCOPE.md](LICENSE-SCOPE.md).
-
