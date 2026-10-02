@@ -1,12 +1,23 @@
-.env
-.env.*
-!.env.example
+# dependencies and build output
 node_modules/
 vendor/
-wp-config.php
-wp-content/uploads/
-*.zip
+dist/
+
+# local environment
+.env
+.env.*
 *.log
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
 
+# never commit archives or key material
+*.zip
+*.tar
+*.tar.gz
+*.pem
+*.key
+
+# the audit tool writes store data here
+reports/

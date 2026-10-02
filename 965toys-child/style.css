@@ -1,0 +1,30 @@
+/*
+Theme Name:   965toys: Store Redesign
+Theme URI:    https://github.com/tarekokashha/965toys-storefront
+Description:  A WooCommerce child theme for Woodmart that implements the 965toys store redesign: Arabic-first RTL design tokens, a playful motion layer, a shelf-based homepage, Kuwait delivery rules, share cards that render in WhatsApp, and the performance and accessibility fixes found in an audit of the live store. All customisation lives here, so updating Woodmart never destroys it. Requires the Woodmart parent theme, which is not included.
+Author:       Tarek Okasha
+Author URI:   https://tarek-portfolio-phi.vercel.app
+Template:     woodmart
+Version:      4.3.0
+Requires at least: 5.3
+Requires PHP: 7.4
+License:      GNU General Public License v2 or later
+License URI:  http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain:  965toys
+Tags:         ecommerce, rtl-language-support, accessibility-ready
+*/
+
+/*
+   Intentionally empty.
+
+   Stylesheets are enqueued as separate files so they can be cached, versioned
+   and audited independently — see inc/enqueue.php for the load order:
+
+     assets/fonts/fonts.css       self-hosted @font-face (Baloo + Rubik)
+     assets/css/tokens.css        design tokens, verbatim from the handoff
+     assets/css/base.css          reset, Arabic/RTL corrections, layout primitives
+     assets/css/home.css          homepage sections + shared components
+     assets/css/woodmart-bridge.css   maps tokens onto Woodmart's --wd-* vars
+
+   Do not add rules to this file.
+*/

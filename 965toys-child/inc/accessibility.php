@@ -82,7 +82,9 @@ function toys965_fallback_alt( $attr, $attachment, $size ) {
 	$parent = wp_get_post_parent_id( $attachment->ID );
 
 	if ( $parent && 'product' === get_post_type( $parent ) ) {
-		$attr['alt'] = get_the_title( $parent );
+		// get_the_title() runs the the_title filter below, which wraps Latin runs in <span lang="en">.
+		// That markup is right in a heading and wrong in an attribute, so strip it for alt text.
+		$attr['alt'] = wp_strip_all_tags( get_the_title( $parent ) );
 	} elseif ( $attachment->post_title ) {
 		$attr['alt'] = $attachment->post_title;
 	}

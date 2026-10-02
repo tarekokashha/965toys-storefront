@@ -1,0 +1,24 @@
+{
+  "name": "965toys-storefront",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Arabic-first WooCommerce child theme for Woodmart that implements the 965toys store redesign, with Kuwait delivery rules, WhatsApp-ready share cards and audit-driven performance and accessibility fixes. By Tarek Okasha.",
+  "license": "GPL-2.0-or-later",
+  "author": "Tarek Okasha",
+  "homepage": "https://github.com/tarekokashha/965toys-storefront",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarekokashha/965toys-storefront.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tarekokashha/965toys-storefront/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node scripts/check-repo.mjs",
+    "audit:prices": "python tools/audit_prices.py"
+  }
+}

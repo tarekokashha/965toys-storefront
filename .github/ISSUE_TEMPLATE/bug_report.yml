@@ -1,0 +1,45 @@
+name: Bug report
+description: Something here is wrong, broken or out of date
+title: "[bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please check the README and `docs/` first, and search existing issues.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What is wrong?
+      description: Describe the problem, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps, or a link to the exact page or file.
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language and direction
+      options:
+        - Arabic (right to left)
+        - English (left to right)
+        - Both
+        - Not applicable
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser and version, WordPress, WooCommerce, Woodmart and PHP versions.
+      placeholder: "Firefox 130, WordPress 6.8, PHP 8.3"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      render: text

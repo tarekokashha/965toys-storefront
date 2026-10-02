@@ -1,0 +1,45 @@
+{
+  "requiredFiles": [
+    "README.md",
+    "README.ar.md",
+    "LICENSE",
+    "NOTICE.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "CHANGELOG.md",
+    "965toys-child/style.css",
+    "965toys-child/functions.php",
+    "tools/audit_prices.py",
+    "docs/architecture.md",
+    "docs/delivery.md",
+    "docs/audit-and-fixes.md",
+    "docs/motion.md",
+    "docs/install.md",
+    "docs/decisions.md"
+  ],
+  "forbiddenPaths": [
+    "\\.(zip|tar|gz|tgz|7z|rar)$",
+    "(^|/)\\.env(\\..*)?$",
+    "\\.(pem|key|p12|pfx)$",
+    "(^|/)id_(rsa|ed25519)",
+    "\\.(sql|sqlite|db)$",
+    "(^|/)node_modules/",
+    "(^|/)\\.DS_Store$",
+    "^965toys-child/assets/img/",
+    "^reports/"
+  ],
+  "noThirdPartyDirs": [],
+  "noThirdPartyHosts": [],
+  "allowedEmails": [
+    "@example\\.(com|org)$",
+    "@users\\.noreply\\.github\\.com$",
+    "@your-store\\.example$"
+  ],
+  "allowedPhones": [
+    "966500000000"
+  ],
+  "jsSyntaxDirs": [
+    "965toys-child/assets/js"
+  ]
+}
